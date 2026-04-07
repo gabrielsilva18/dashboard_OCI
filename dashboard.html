@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard - Contagem por Especialidade</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #111a33;
+      --text: #e9eefc;
+      --muted: #a9b4d6;
+      --accent: #58a6ff;
+      --accent2: #34d399;
+      --danger: #f87171;
+      --border: rgba(233, 238, 252, 0.12);
+    }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      background: radial-gradient(1200px 800px at 10% 0%, rgba(88, 166, 255, 0.18), transparent 55%),
+                  radial-gradient(1000px 700px at 90% 10%, rgba(52, 211, 153, 0.14), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 18px 42px;
+    }
+    .hero {
+      display: flex;
+      gap: 14px;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      border: 1px solid var(--border);
+      background: rgba(17, 26, 51, 0.6);
+      padding: 18px 18px;
+      border-radius: 16px;
+      backdrop-filter: blur(6px);
+    }
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0.2px;
+      font-weight: 700;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .grid {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      border: 1px solid var(--border);
+      background: rgba(17, 26, 51, 0.55);
+      border-radius: 16px;
+      padding: 14px 14px;
+    }
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+    }
+    .total {
+      font-size: 34px;
+      font-weight: 800;
+      margin: 6px 0 0;
+    }
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .bars {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .barrow {
+      display: grid;
+      grid-template-columns: 180px 1fr 70px;
+      gap: 10px;
+      align-items: center;
+    }
+    @media (max-width: 520px) {
+      .barrow { grid-template-columns: 1fr; }
+    }
+    .label {
+      color: var(--text);
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .track {
+      height: 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.18);
+      overflow: hidden;
+    }
+    .fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 999px;
+      transition: width 700ms ease;
+    }
+    .val {
+      text-align: right;
+      font-weight: 800;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    th {
+      text-align: left;
+      color: var(--muted);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-size: 12px;
+    }
+    td {
+      color: var(--text);
+    }
+    .smallmuted {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.16);
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div>
+        <h1>Dashboard - Contagem por Especialidade</h1>
+        <div class="meta">Fonte: <span class="pill">RHOSPIAPAC.txt</span></div>
+      </div>
+      <div class="meta">Total geral de ocorrencias: <b>28</b></div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Totais por Especialidade</h2>
+        <div class="bars" id="bars"></div>
+      </div>
+
+      <div class="card">
+        <h2>Totais por Codigo (apenas os da lista)</h2>
+        <div class="smallmuted">Mostrando todos os codigos da lista (inclusive os que deram 0).</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Procedimento</th>
+              <th>Especialidade</th>
+              <th style="text-align:right;">Total</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const data = {"total_geral": 28, "por_especialidade": [{"especialidade": "Cardiologia", "total": 0}, {"especialidade": "Ginecologia", "total": 0}, {"especialidade": "Oftalmologia", "total": 28}, {"especialidade": "Oncologia", "total": 0}, {"especialidade": "Ortopedia", "total": 0}, {"especialidade": "Otorrino", "total": 0}], "por_codigo": [{"procedimento": "0902010018", "especialidade": "Cardiologia", "total": 0}, {"procedimento": "0902010026", "especialidade": "Cardiologia", "total": 0}, {"procedimento": "0902010034", "especialidade": "Cardiologia", "total": 0}, {"procedimento": "0902010042", "especialidade": "Cardiologia", "total": 0}, {"procedimento": "0902010050", "especialidade": "Cardiologia", "total": 0}, {"procedimento": "0902010069", "especialidade": "Cardiologia", "total": 0}, {"procedimento": "0903010011", "especialidade": "Ortopedia", "total": 0}, {"procedimento": "0903010020", "especialidade": "Ortopedia", "total": 0}, {"procedimento": "0903010038", "especialidade": "Ortopedia", "total": 0}, {"procedimento": "0903010046", "especialidade": "Ortopedia", "total": 0}, {"procedimento": "0905010019", "especialidade": "Oftalmologia", "total": 3}, {"procedimento": "0905010027", "especialidade": "Oftalmologia", "total": 0}, {"procedimento": "0905010035", "especialidade": "Oftalmologia", "total": 21}, {"procedimento": "0905010043", "especialidade": "Oftalmologia", "total": 4}, {"procedimento": "0905010051", "especialidade": "Oftalmologia", "total": 0}, {"procedimento": "0905010060", "especialidade": "Oftalmologia", "total": 0}, {"procedimento": "0905010078", "especialidade": "Oftalmologia", "total": 0}, {"procedimento": "0904010015", "especialidade": "Otorrino", "total": 0}, {"procedimento": "0904010023", "especialidade": "Otorrino", "total": 0}, {"procedimento": "0904010031", "especialidade": "Otorrino", "total": 0}, {"procedimento": "0901010014", "especialidade": "Oncologia", "total": 0}, {"procedimento": "0901010090", "especialidade": "Oncologia", "total": 0}, {"procedimento": "0901010103", "especialidade": "Oncologia", "total": 0}, {"procedimento": "0901010057", "especialidade": "Oncologia", "total": 0}, {"procedimento": "0901010111", "especialidade": "Oncologia", "total": 0}, {"procedimento": "0901010120", "especialidade": "Oncologia", "total": 0}, {"procedimento": "0901010049", "especialidade": "Oncologia", "total": 0}, {"procedimento": "0901010073", "especialidade": "Oncologia", "total": 0}, {"procedimento": "0901010081", "especialidade": "Oncologia", "total": 0}, {"procedimento": "0906010012", "especialidade": "Ginecologia", "total": 0}, {"procedimento": "0906010020", "especialidade": "Ginecologia", "total": 0}, {"procedimento": "0906010039", "especialidade": "Ginecologia", "total": 0}, {"procedimento": "0906010047", "especialidade": "Ginecologia", "total": 0}, {"procedimento": "0906010055", "especialidade": "Ginecologia", "total": 0}], "fonte": "RHOSPIAPAC.txt"};
+    const max = Math.max(...data.por_especialidade.map(x => x.total), 0);
+    const bars = document.getElementById('bars');
+    const rows = document.getElementById('rows');
+
+    for (const item of data.por_especialidade) {
+      const pct = max === 0 ? 0 : (item.total / max) * 100;
+      const el = document.createElement('div');
+      el.className = 'barrow';
+      el.innerHTML = `
+        <div class="label">${item.especialidade}</div>
+        <div class="track"><div class="fill" style="width:${pct}%"></div></div>
+        <div class="val">${item.total}</div>
+      `;
+      bars.appendChild(el);
+    }
+
+    for (const item of data.por_codigo) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><b>${item.procedimento}</b></td>
+        <td>${item.especialidade}</td>
+        <td style="text-align:right; font-weight:800;">${item.total}</td>
+      `;
+      rows.appendChild(tr);
+    }
+  </script>
+</body>
+</html>

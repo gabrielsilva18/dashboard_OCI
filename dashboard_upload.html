@@ -1,0 +1,1517 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard - Relatorios por Estabelecimento</title>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #1351b4;
+      --accent2: #2b6fd3;
+      --border: rgba(19, 81, 180, 0.42);
+      --focus: rgba(19, 81, 180, 0.20);
+    }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 18px 42px;
+    }
+    .hero {
+      display: flex;
+      gap: 14px;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      border: 1px solid var(--border);
+      background: var(--card);
+      padding: 18px 18px;
+      border-radius: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0.2px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #eef4ff;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .fileRow {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .fileRow input[type="file"] {
+      color: var(--muted);
+    }
+    .select {
+      border: 1px solid var(--border);
+      background-color: #ffffff;
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 999px;
+      min-width: 260px;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, rgba(31,41,55,0.72) 50%),
+        linear-gradient(135deg, rgba(31,41,55,0.72) 50%, transparent 50%),
+        linear-gradient(to right, rgba(19,81,180,0.08), rgba(19,81,180,0.03));
+      background-position:
+        calc(100% - 18px) 50%,
+        calc(100% - 12px) 50%,
+        0 0;
+      background-size:
+        6px 6px,
+        6px 6px,
+        100% 100%;
+      background-repeat: no-repeat;
+      padding-right: 38px;
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.10);
+      transition: box-shadow 120ms ease, border-color 120ms ease, background-color 120ms ease;
+    }
+    .select:focus {
+      box-shadow: 0 0 0 2px var(--focus), 0 16px 40px rgba(15,23,42,0.75);
+      border-color: rgba(19, 81, 180, 0.45);
+      background-color: #ffffff;
+    }
+    .select:hover {
+      border-color: rgba(19, 81, 180, 0.35);
+    }
+    .select option {
+      background: #ffffff;
+      color: #1f2937;
+    }
+    .btn {
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .btn.primary {
+      border-color: rgba(19, 81, 180, 0.30);
+      background: linear-gradient(90deg, rgba(19,81,180,0.12), rgba(19,81,180,0.06));
+      color: var(--accent);
+    }
+    .btn.primary:hover {
+      border-color: rgba(19, 81, 180, 0.50);
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .status {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 6px;
+      min-height: 18px;
+    }
+
+    .grid {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      border: 1px solid var(--border);
+      background: var(--card);
+      border-radius: 16px;
+      padding: 14px 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+    }
+    .total {
+      font-size: 34px;
+      font-weight: 800;
+      margin: 6px 0 0;
+    }
+    .bars {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .barrow {
+      display: grid;
+      grid-template-columns: 180px 1fr 70px;
+      gap: 10px;
+      align-items: center;
+    }
+    @media (max-width: 520px) {
+      .barrow { grid-template-columns: 1fr; }
+    }
+    .label {
+      color: var(--text);
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .track {
+      height: 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(19,81,180,0.08);
+      overflow: hidden;
+    }
+    .fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 999px;
+      transition: width 700ms ease;
+    }
+    .val {
+      text-align: right;
+      font-weight: 800;
+      color: var(--text);
+      font-size: 13px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    th {
+      text-align: left;
+      color: var(--muted);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-size: 12px;
+    }
+    td { color: var(--text); }
+    .smallmuted {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .stack {
+      margin-top: 16px;
+      display: grid;
+      gap: 16px;
+    }
+    .pieWrap {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+    @media (max-width: 700px) {
+      .pieWrap { grid-template-columns: 1fr; }
+    }
+    #pieCanvas {
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: rgba(19,81,180,0.08);
+    }
+    #columnsCanvas {
+      width: 100%;
+      height: 260px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(19,81,180,0.08);
+    }
+    .legend {
+      display: grid;
+      gap: 8px;
+    }
+    .legendRow {
+      display: grid;
+      grid-template-columns: 16px 1fr 60px;
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+    }
+    .legendColor {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      border: 1px solid rgba(255,255,255,0.22);
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.06);
+    }
+
+    .chartCard {
+      border: 1px solid rgba(19, 81, 180, 0.48);
+      background: linear-gradient(180deg, rgba(19,81,180,0.06), rgba(19,81,180,0.02));
+    }
+    .chartCard h2 {
+      color: #1351B4;
+    }
+    .authOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(3px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 16px;
+    }
+    .authCard {
+      width: min(420px, 100%);
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.24);
+      padding: 16px;
+    }
+    .authCard h3 {
+      margin: 0 0 10px;
+      color: var(--accent);
+      font-size: 18px;
+    }
+    .authField {
+      display: grid;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .authField label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .authField input {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      outline: none;
+      font-size: 14px;
+    }
+    .authField input:focus {
+      box-shadow: 0 0 0 2px var(--focus);
+      border-color: rgba(19, 81, 180, 0.45);
+    }
+    .authActions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .authMsg {
+      min-height: 18px;
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .topActions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+  </style>
+</head>
+<body>
+  <div class="authOverlay" id="authOverlay">
+    <div class="authCard">
+      <h3>Acesso ao dashboard</h3>
+      <div class="meta">Entre com e-mail e senha para usar o painel.</div>
+      <div class="authField">
+        <label for="authEmail">E-mail</label>
+        <input id="authEmail" type="email" placeholder="voce@empresa.com" />
+      </div>
+      <div class="authField">
+        <label for="authPassword">Senha</label>
+        <input id="authPassword" type="password" placeholder="Minimo 6 caracteres" />
+      </div>
+      <div class="authActions">
+        <button class="btn primary" id="btnLogin" type="button">Entrar</button>
+        <button class="btn" id="btnSignUp" type="button">Cadastrar</button>
+      </div>
+      <div class="authMsg" id="authMsg"></div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="hero">
+      <div>
+        <h1>Dashboard - Relatorios por Estabelecimento</h1>
+        <div class="meta">Envie varios arquivos `.jan` ou `.txt` e o painel organiza por hospital, procedimento e especialidade.</div>
+        <div class="actions">
+          <div class="fileRow">
+            <input id="fileInput" type="file" accept=".jan,.JAN,.txt,.TXT,text/plain,application/octet-stream" multiple />
+            <div class="btn primary" id="btnProcess">Processar arquivos</div>
+            <select id="hospitalFilter" class="select" aria-label="Filtrar estabelecimento">
+              <option value="__ALL__">Todos os estabelecimentos</option>
+            </select>
+            <select id="procedureFilter" class="select" aria-label="Filtrar grupo">
+              <option value="__ALL__">Todos os grupos</option>
+            </select>
+            <div class="btn primary" id="btnApplyFilters" title="Aplicar filtros selecionados">Aplicar filtros</div>
+            <div class="btn" id="btnExportHosp">Exportar CSV (Resumo)</div>
+            <div class="btn" id="btnExportProc">Exportar CSV (Grupos)</div>
+          </div>
+          <div class="status" id="status">Aguardando arquivo...</div>
+        </div>
+      </div>
+      <div class="topActions">
+        <div class="meta" id="authUser">Nao autenticado</div>
+        <button class="btn" id="btnLogout" type="button" style="display:none;">Sair</button>
+        <div class="meta" id="metaTotal">Arquivos: <b>0</b> | Procedimentos mapeados: <b>0</b></div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Quantidade de Relatorios por Estabelecimento</h2>
+        <div class="bars" id="barsHosp"></div>
+      </div>
+
+      <div class="card">
+        <h2>Totais Gerais por Especialidade</h2>
+        <div class="bars" id="bars"></div>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="card chartCard">
+        <h2>Gráfico de Pizza - Grupos (Top selecionado)</h2>
+        <div class="pieWrap">
+          <canvas id="pieCanvas" width="240" height="240"></canvas>
+          <div class="legend" id="pieLegend"></div>
+        </div>
+      </div>
+
+      <div class="card chartCard">
+        <h2>Gráficos de Colunas - Grupos por Hospital</h2>
+        <div class="smallmuted">Barras = grupos (contagem agregada) para cada hospital. Respeita os filtros de estabelecimento e grupo.</div>
+        <div id="columnsCharts" style="margin-top:12px; display:grid; grid-template-columns:repeat(auto-fit, minmax(420px, 1fr)); gap:16px;"></div>
+      </div>
+
+      <div class="card">
+        <h2>Resumo por Estabelecimento</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Estabelecimento</th>
+              <th style="text-align:right;">Relatorios</th>
+              <th style="text-align:right;">Procedimentos mapeados</th>
+            </tr>
+          </thead>
+          <tbody id="rowsHosp"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>Grupos por Estabelecimento</h2>
+        <div class="smallmuted">Mostrando contagem agregada por grupo da sua lista de mapeamento.</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Estabelecimento</th>
+              <th>Grupo</th>
+              <th style="text-align:right;">Total</th>
+            </tr>
+          </thead>
+          <tbody id="rowsHospProc"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>Totais por Grupo (geral)</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Grupo</th>
+              <th style="text-align:right;">Total</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="./node_modules/@supabase/supabase-js/dist/umd/supabase.js"></script>
+  <script>
+    const SUPABASE_URL = "https://hcbuucflhvezuxhnqdxl.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_6e8gggvynIDG7QPwBPQvyA_TvYAuR5z";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Mapa conforme a lista do colega (código sem hífen -> especialidade)
+    const LISTA_PROCED_ESPECIALIDADE = {
+      // Cardiologia
+      "0902010018": "Cardiologia",
+      "0902010026": "Cardiologia",
+      "0902010034": "Cardiologia",
+      "0902010042": "Cardiologia",
+      "0902010050": "Cardiologia",
+      "0902010069": "Cardiologia",
+
+      // Ortopedia
+      "0903010011": "Ortopedia",
+      "0903010020": "Ortopedia",
+      "0903010038": "Ortopedia",
+      "0903010046": "Ortopedia",
+
+      // Oftalmologia
+      "0905010019": "Oftalmologia",
+      "0905010027": "Oftalmologia",
+      "0905010035": "Oftalmologia",
+      "0905010043": "Oftalmologia",
+      "0905010051": "Oftalmologia",
+      "0905010060": "Oftalmologia",
+      "0905010078": "Oftalmologia",
+
+      // Otorrino
+      "0904010015": "Otorrino",
+      "0904010023": "Otorrino",
+      "0904010031": "Otorrino",
+
+      // Oncologia
+      "0901010014": "Oncologia",
+      "0901010090": "Oncologia",
+      "0901010103": "Oncologia",
+      "0901010057": "Oncologia",
+      "0901010111": "Oncologia",
+      "0901010120": "Oncologia",
+      "0901010049": "Oncologia",
+      "0901010073": "Oncologia",
+      "0901010081": "Oncologia",
+
+      // Ginecologia
+      "0906010012": "Ginecologia",
+      "0906010020": "Ginecologia",
+      "0906010039": "Ginecologia",
+      "0906010047": "Ginecologia",
+      "0906010055": "Ginecologia"
+    };
+
+    function code10ToHyphen(code10) {
+      // Ex: 0905010035 -> 090501003-5 (formato que aparece no texto)
+      return code10.slice(0, -1) + "-" + code10.slice(-1);
+    }
+
+    // Constrói o mapeamento para o formato que o arquivo usa
+    const specialByCodeHyphen = {};
+    for (const [code10, esp] of Object.entries(LISTA_PROCED_ESPECIALIDADE)) {
+      specialByCodeHyphen[code10ToHyphen(code10)] = esp;
+    }
+
+    const ALL_SPECIALTIES_ORDERED = [
+      "Cardiologia",
+      "Ortopedia",
+      "Oftalmologia",
+      "Otorrino",
+      "Oncologia",
+      "Ginecologia",
+    ];
+    const SPECIALTY_DISPLAY_NAME = {
+      "Cardiologia": "Cardiologia",
+      "Ortopedia": "Ortopedia",
+      "Oftalmologia": "Oftalmologia",
+      "Otorrino": "Otorrinolaringologia",
+      "Oncologia": "Oncologia",
+      "Ginecologia": "Saude da Mulher",
+    };
+
+    const ALL_CODES_ORDERED = Object.entries(LISTA_PROCED_ESPECIALIDADE).map(([code10, esp]) => ({
+      code10,
+      esp,
+    }));
+
+    const fileInput = document.getElementById("fileInput");
+    const btnProcess = document.getElementById("btnProcess");
+    const statusEl = document.getElementById("status");
+    const metaTotalEl = document.getElementById("metaTotal");
+    const barsHospEl = document.getElementById("barsHosp");
+    const barsEl = document.getElementById("bars");
+    const hospitalFilterEl = document.getElementById("hospitalFilter");
+    const btnExportHospEl = document.getElementById("btnExportHosp");
+    const btnExportProcEl = document.getElementById("btnExportProc");
+    const btnApplyFiltersEl = document.getElementById("btnApplyFilters");
+    const pieCanvasEl = document.getElementById("pieCanvas");
+    const pieLegendEl = document.getElementById("pieLegend");
+    const rowsHospEl = document.getElementById("rowsHosp");
+    const rowsHospProcEl = document.getElementById("rowsHospProc");
+    const rowsEl = document.getElementById("rows");
+    const procedureFilterEl = document.getElementById("procedureFilter");
+    const columnsChartsEl = document.getElementById("columnsCharts");
+    const authOverlayEl = document.getElementById("authOverlay");
+    const authMsgEl = document.getElementById("authMsg");
+    const authEmailEl = document.getElementById("authEmail");
+    const authPasswordEl = document.getElementById("authPassword");
+    const btnLoginEl = document.getElementById("btnLogin");
+    const btnSignUpEl = document.getElementById("btnSignUp");
+    const authUserEl = document.getElementById("authUser");
+    const btnLogoutEl = document.getElementById("btnLogout");
+    const PROCEDURE_PIE_PALETTE = [
+      "#60a5fa",
+      "#34d399",
+      "#f472b6",
+      "#a78bfa",
+      "#fbbf24",
+      "#fb7185",
+      "#22c55e",
+      "#38bdf8",
+      "#94a3b8",
+    ];
+    function procedureColorByIndex(i) {
+      // Gera cores mais distintas evitando tons parecidos (ex.: rosas).
+      // Golden angle => distribui bem as cores em torno do espectro.
+      const hue = (i * 137.508) % 360;
+      const sat = 78;
+      const light = 58;
+      return `hsl(${hue}, ${sat}%, ${light}%)`;
+    }
+    const PIE_COLORS = {
+      "Cardiologia": "#4F46E5",
+      "Ortopedia": "#2563EB",
+      "Oftalmologia": "#06B6D4",
+      "Otorrino": "#10B981",
+      "Oncologia": "#F59E0B",
+      "Ginecologia": "#EF4444",
+    };
+    const DASH_STATE = {
+      processedFiles: 0,
+      totalMapped: 0,
+      reportCountByHospital: {},
+      mappedCountByHospital: {},
+      countsByHospitalAndCode: {},
+      countsByCode10: {},
+      countsBySpecialty: {},
+    };
+    let HAS_UNAPPLIED_FILTERS = false;
+    let CURRENT_USER = null;
+
+    function setAuthMsg(msg) {
+      authMsgEl.textContent = msg || "";
+    }
+
+    function setAppEnabled(enabled) {
+      const canUse = !!enabled;
+      fileInput.disabled = !canUse;
+      btnProcess.style.pointerEvents = canUse ? "" : "none";
+      btnProcess.style.opacity = canUse ? "1" : "0.6";
+      hospitalFilterEl.disabled = !canUse;
+      procedureFilterEl.disabled = !canUse;
+      btnApplyFiltersEl.style.pointerEvents = canUse ? "" : "none";
+      btnApplyFiltersEl.style.opacity = canUse ? btnApplyFiltersEl.style.opacity : "0.6";
+      btnExportHospEl.style.pointerEvents = canUse ? "" : "none";
+      btnExportHospEl.style.opacity = canUse ? "1" : "0.6";
+      btnExportProcEl.style.pointerEvents = canUse ? "" : "none";
+      btnExportProcEl.style.opacity = canUse ? "1" : "0.6";
+    }
+
+    function renderAuthState(user) {
+      CURRENT_USER = user || null;
+      if (CURRENT_USER) {
+        authOverlayEl.style.display = "none";
+        authUserEl.textContent = CURRENT_USER.email || "Logado";
+        btnLogoutEl.style.display = "";
+        setAppEnabled(true);
+      } else {
+        authOverlayEl.style.display = "flex";
+        authUserEl.textContent = "Nao autenticado";
+        btnLogoutEl.style.display = "none";
+        setAppEnabled(false);
+      }
+    }
+
+    async function doSignIn() {
+      const email = (authEmailEl.value || "").trim();
+      const password = authPasswordEl.value || "";
+      if (!email || !password) {
+        setAuthMsg("Preencha e-mail e senha.");
+        return;
+      }
+      setAuthMsg("Entrando...");
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) {
+        setAuthMsg(`Erro no login: ${error.message}`);
+        return;
+      }
+      setAuthMsg("Login realizado.");
+    }
+
+    async function doSignUp() {
+      const email = (authEmailEl.value || "").trim();
+      const password = authPasswordEl.value || "";
+      if (!email || !password) {
+        setAuthMsg("Preencha e-mail e senha.");
+        return;
+      }
+      setAuthMsg("Criando conta...");
+      const { error } = await supabaseClient.auth.signUp({ email, password });
+      if (error) {
+        setAuthMsg(`Erro no cadastro: ${error.message}`);
+        return;
+      }
+      setAuthMsg("Cadastro enviado. Se necessario, confirme o e-mail.");
+    }
+
+    function setFiltersDirty(isDirty) {
+      HAS_UNAPPLIED_FILTERS = !!isDirty;
+      const hasData = (DASH_STATE.processedFiles || 0) > 0;
+      btnApplyFiltersEl.style.display = hasData ? "" : "none";
+      btnApplyFiltersEl.style.opacity = (hasData && HAS_UNAPPLIED_FILTERS) ? "1" : "0.65";
+      btnApplyFiltersEl.style.pointerEvents = (hasData && HAS_UNAPPLIED_FILTERS) ? "" : "none";
+      btnApplyFiltersEl.setAttribute("aria-disabled", String(!(hasData && HAS_UNAPPLIED_FILTERS)));
+    }
+
+    function escapeCsv(value) {
+      const s = String(value ?? "");
+      if (/[",;\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+      return s;
+    }
+
+    function downloadCsv(filename, headers, rows) {
+      const lines = [
+        headers.map(escapeCsv).join(";"),
+        ...rows.map((r) => r.map(escapeCsv).join(";")),
+      ];
+      const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function renderEmpty() {
+      barsHospEl.innerHTML = "";
+      barsEl.innerHTML = "";
+      rowsHospEl.innerHTML = "";
+      rowsHospProcEl.innerHTML = "";
+      rowsEl.innerHTML = "";
+      pieLegendEl.innerHTML = "";
+      columnsChartsEl.innerHTML = "";
+      hospitalFilterEl.innerHTML = `<option value="__ALL__">Todos os estabelecimentos</option>`;
+      drawPieChart({});
+      renderProcedureColumnCharts([]);
+
+      const elHosp = document.createElement("div");
+      elHosp.className = "barrow";
+      elHosp.innerHTML = `
+        <div class="label">Sem dados</div>
+        <div class="track"><div class="fill" style="width:0%"></div></div>
+        <div class="val">0</div>
+      `;
+      barsHospEl.appendChild(elHosp);
+
+      for (const esp of ALL_SPECIALTIES_ORDERED) {
+        const el = document.createElement("div");
+        el.className = "barrow";
+        el.innerHTML = `
+          <div class="label">${esp}</div>
+          <div class="track"><div class="fill" style="width:0%"></div></div>
+          <div class="val">0</div>
+        `;
+        barsEl.appendChild(el);
+      }
+
+      for (const item of ALL_CODES_ORDERED) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><b>${item.code10}</b></td>
+          <td>${item.esp}</td>
+          <td style="text-align:right; font-weight:800;">0</td>
+        `;
+        rowsEl.appendChild(tr);
+      }
+      metaTotalEl.innerHTML = "Arquivos: <b>0</b> | Procedimentos mapeados: <b>0</b>";
+    }
+
+    function setStatus(msg) {
+      statusEl.textContent = msg;
+    }
+
+    function normalizeHospitalName(raw) {
+      return String(raw || "").replace(/\s+/g, " ").trim();
+    }
+
+    function parseHospitalFromText(text) {
+      const m = text.match(/Estab\.Exec\.\s*:\s*(\d+)\s*-\s*([^\r\n]+)/i);
+      if (!m) return "Nao identificado";
+      const code = m[1];
+      const name = normalizeHospitalName(m[2]);
+      return `${code} - ${name}`;
+    }
+
+    function parseProcedureCodesFromText(text) {
+      const codes = [];
+      // Captura linhas "SQ PROC ... 090501003-5 ..."
+      const procLineRe = /^\s*\d+\s+(\d{9}-\d)\b/gm;
+      let m;
+      while ((m = procLineRe.exec(text)) !== null) {
+        codes.push(m[1]);
+      }
+      return codes;
+    }
+
+    async function processFiles(files) {
+      setStatus("Lendo arquivos...");
+
+      const countsBySpecialty = {};
+      const countsByCode10 = {};
+      const reportCountByHospital = {};
+      const mappedCountByHospital = {};
+      const countsByHospitalAndCode = {};
+
+      for (const esp of ALL_SPECIALTIES_ORDERED) countsBySpecialty[esp] = 0;
+      for (const item of ALL_CODES_ORDERED) countsByCode10[item.code10] = 0;
+
+      for (const file of files) {
+        const text = await file.text();
+        const hospital = parseHospitalFromText(text);
+        reportCountByHospital[hospital] = (reportCountByHospital[hospital] || 0) + 1;
+
+        if (!countsByHospitalAndCode[hospital]) countsByHospitalAndCode[hospital] = {};
+
+        const codesInFile = parseProcedureCodesFromText(text);
+        for (const codeHyphen of codesInFile) {
+          const esp = specialByCodeHyphen[codeHyphen];
+          if (!esp) continue;
+          const code10 = codeHyphen.replace("-", "");
+
+          countsBySpecialty[esp] = (countsBySpecialty[esp] || 0) + 1;
+          countsByCode10[code10] = (countsByCode10[code10] || 0) + 1;
+          mappedCountByHospital[hospital] = (mappedCountByHospital[hospital] || 0) + 1;
+          countsByHospitalAndCode[hospital][code10] = (countsByHospitalAndCode[hospital][code10] || 0) + 1;
+        }
+      }
+
+      const totalGeral = ALL_SPECIALTIES_ORDERED.reduce((acc, esp) => acc + (countsBySpecialty[esp] || 0), 0);
+      DASH_STATE.processedFiles = files.length;
+      DASH_STATE.totalMapped = totalGeral;
+      DASH_STATE.reportCountByHospital = reportCountByHospital;
+      DASH_STATE.mappedCountByHospital = mappedCountByHospital;
+      DASH_STATE.countsByHospitalAndCode = countsByHospitalAndCode;
+      DASH_STATE.countsByCode10 = countsByCode10;
+      DASH_STATE.countsBySpecialty = countsBySpecialty;
+
+      renderAll();
+      setFiltersDirty(false);
+      setStatus("Pronto.");
+    }
+
+    function getFilteredHospitals() {
+      const selected = hospitalFilterEl.value || "__ALL__";
+      const allHospitals = Object.keys(DASH_STATE.reportCountByHospital || {});
+      if (selected === "__ALL__") return allHospitals;
+      return allHospitals.includes(selected) ? [selected] : [];
+    }
+
+    function buildSpecialtyForHospitals(hospitals, selectedSpecialty) {
+      const bySpecialty = {};
+      for (const esp of ALL_SPECIALTIES_ORDERED) bySpecialty[esp] = 0;
+      for (const hospital of hospitals) {
+        const byCode = (DASH_STATE.countsByHospitalAndCode || {})[hospital] || {};
+        for (const item of ALL_CODES_ORDERED) {
+          if (selectedSpecialty !== "__ALL__" && item.esp !== selectedSpecialty) continue;
+          const total = byCode[item.code10] || 0;
+          if (!total) continue;
+          bySpecialty[item.esp] = (bySpecialty[item.esp] || 0) + total;
+        }
+      }
+      return bySpecialty;
+    }
+
+    function buildCodeTotalsForHospitals(hospitals, selectedSpecialty) {
+      const totals = {};
+      for (const esp of ALL_SPECIALTIES_ORDERED) totals[esp] = 0;
+      for (const hospital of hospitals) {
+        const byCode = (DASH_STATE.countsByHospitalAndCode || {})[hospital] || {};
+        for (const item of ALL_CODES_ORDERED) {
+          if (selectedSpecialty !== "__ALL__" && item.esp !== selectedSpecialty) continue;
+          totals[item.esp] = (totals[item.esp] || 0) + (byCode[item.code10] || 0);
+        }
+      }
+      return totals;
+    }
+
+    function renderFilterOptions() {
+      const prev = hospitalFilterEl.value || "__ALL__";
+      const hospitals = Object.keys(DASH_STATE.reportCountByHospital || {}).sort((a, b) => a.localeCompare(b));
+      hospitalFilterEl.innerHTML = `<option value="__ALL__">Todos os estabelecimentos</option>`;
+      for (const hospital of hospitals) {
+        const opt = document.createElement("option");
+        opt.value = hospital;
+        opt.textContent = hospital;
+        hospitalFilterEl.appendChild(opt);
+      }
+      hospitalFilterEl.value = hospitals.includes(prev) ? prev : "__ALL__";
+    }
+
+    function renderAll() {
+      renderFilterOptions();
+      const selectedHospitals = getFilteredHospitals();
+      const selectedSpecialty = procedureFilterEl.value || "__ALL__";
+      const filteredBySpecialty = buildSpecialtyForHospitals(selectedHospitals, selectedSpecialty);
+      const filteredByCode10 = buildCodeTotalsForHospitals(selectedHospitals, selectedSpecialty);
+      const totalMappedFiltered = ALL_SPECIALTIES_ORDERED.reduce((acc, esp) => acc + (filteredBySpecialty[esp] || 0), 0);
+      const selectedLabel = hospitalFilterEl.value === "__ALL__" ? "Todos" : "1 estabelecimento";
+      const procedureLabel = selectedSpecialty === "__ALL__" ? "Todos os grupos" : (SPECIALTY_DISPLAY_NAME[selectedSpecialty] || selectedSpecialty);
+      metaTotalEl.innerHTML = `Arquivos: <b>${DASH_STATE.processedFiles}</b> | Procedimentos mapeados: <b>${totalMappedFiltered}</b> | Filtro: <b>${selectedLabel}</b> / <b>${procedureLabel}</b>`;
+
+      renderHospitalBars(DASH_STATE.reportCountByHospital);
+      renderBars(filteredBySpecialty, totalMappedFiltered);
+      renderHospitalsTable(DASH_STATE.reportCountByHospital, DASH_STATE.countsByHospitalAndCode, selectedHospitals, selectedSpecialty);
+      renderHospitalProcedureTable(DASH_STATE.countsByHospitalAndCode, selectedHospitals, selectedSpecialty);
+      renderTable(filteredByCode10);
+      drawPieChart(filteredByCode10);
+      renderPieLegend(filteredByCode10);
+      renderProcedureColumnCharts(selectedHospitals, selectedSpecialty);
+    }
+
+    function renderHospitalBars(reportCountByHospital) {
+      barsHospEl.innerHTML = "";
+      const hospitals = Object.keys(reportCountByHospital).sort((a, b) => (reportCountByHospital[b] || 0) - (reportCountByHospital[a] || 0));
+      if (!hospitals.length) {
+        const el = document.createElement("div");
+        el.className = "barrow";
+        el.innerHTML = `
+          <div class="label">Sem dados</div>
+          <div class="track"><div class="fill" style="width:0%"></div></div>
+          <div class="val">0</div>
+        `;
+        barsHospEl.appendChild(el);
+        return;
+      }
+
+      const max = Math.max(...hospitals.map(h => reportCountByHospital[h] || 0), 0);
+      for (const hospital of hospitals) {
+        const total = reportCountByHospital[hospital] || 0;
+        const pct = max === 0 ? 0 : (total / max) * 100;
+        const el = document.createElement("div");
+        el.className = "barrow";
+        el.innerHTML = `
+          <div class="label">${hospital}</div>
+          <div class="track"><div class="fill" style="width:${pct}%"></div></div>
+          <div class="val">${total}</div>
+        `;
+        barsHospEl.appendChild(el);
+      }
+    }
+
+    function renderBars(countsBySpecialty, totalGeral) {
+      barsEl.innerHTML = "";
+      const max = Math.max(...ALL_SPECIALTIES_ORDERED.map(esp => countsBySpecialty[esp] || 0), 0);
+      for (const esp of ALL_SPECIALTIES_ORDERED) {
+        const total = countsBySpecialty[esp] || 0;
+        const pct = max === 0 ? 0 : (total / max) * 100;
+        const el = document.createElement("div");
+        el.className = "barrow";
+        el.innerHTML = `
+          <div class="label">${esp}</div>
+          <div class="track"><div class="fill" style="width:${pct}%"></div></div>
+          <div class="val">${total}</div>
+        `;
+        barsEl.appendChild(el);
+      }
+    }
+
+    function renderHospitalsTable(reportCountByHospital, countsByHospitalAndCode, selectedHospitals, selectedSpecialty) {
+      rowsHospEl.innerHTML = "";
+      const hospitals = (selectedHospitals && selectedHospitals.length)
+        ? selectedHospitals.slice().sort((a, b) => (reportCountByHospital[b] || 0) - (reportCountByHospital[a] || 0))
+        : Object.keys(reportCountByHospital).sort((a, b) => (reportCountByHospital[b] || 0) - (reportCountByHospital[a] || 0));
+      if (!hospitals.length) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="3" class="smallmuted">Nenhum dado.</td>`;
+        rowsHospEl.appendChild(tr);
+        return;
+      }
+      for (const hospital of hospitals) {
+        const byCode = (countsByHospitalAndCode || {})[hospital] || {};
+        let mappedCount = 0;
+        if (selectedSpecialty === "__ALL__") {
+          mappedCount = Object.values(byCode).reduce((acc, v) => acc + (v || 0), 0);
+        } else {
+          for (const item of ALL_CODES_ORDERED) {
+            if (item.esp !== selectedSpecialty) continue;
+            mappedCount += (byCode[item.code10] || 0);
+          }
+        }
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><b>${hospital}</b></td>
+          <td style="text-align:right; font-weight:800;">${reportCountByHospital[hospital] || 0}</td>
+          <td style="text-align:right; font-weight:800;">${mappedCount}</td>
+        `;
+        rowsHospEl.appendChild(tr);
+      }
+    }
+
+    function renderHospitalProcedureTable(countsByHospitalAndCode, selectedHospitals, selectedSpecialty) {
+      rowsHospProcEl.innerHTML = "";
+      const hospitals = (selectedHospitals || Object.keys(countsByHospitalAndCode)).slice().sort((a, b) => a.localeCompare(b));
+      let hasRows = false;
+      for (const hospital of hospitals) {
+        const byCode = countsByHospitalAndCode[hospital];
+        if (!byCode) continue;
+        for (const esp of ALL_SPECIALTIES_ORDERED) {
+          if (selectedSpecialty !== "__ALL__" && esp !== selectedSpecialty) continue;
+          let total = 0;
+          for (const item of ALL_CODES_ORDERED) {
+            if (item.esp !== esp) continue;
+            total += (byCode[item.code10] || 0);
+          }
+          if (!total) continue;
+          hasRows = true;
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${hospital}</td>
+            <td><b>${SPECIALTY_DISPLAY_NAME[esp] || esp}</b></td>
+            <td style="text-align:right; font-weight:800;">${total}</td>
+          `;
+          rowsHospProcEl.appendChild(tr);
+        }
+      }
+      if (!hasRows) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="3" class="smallmuted">Nenhum grupo da lista foi encontrado.</td>`;
+        rowsHospProcEl.appendChild(tr);
+      }
+    }
+
+    function getProcedureLabel(specialty) {
+      return SPECIALTY_DISPLAY_NAME[specialty] || String(specialty);
+    }
+
+    function renderProcedureColumnCharts(selectedHospitals, selectedSpecialty) {
+      columnsChartsEl.innerHTML = "";
+      const selProc = (selectedSpecialty === undefined || selectedSpecialty === null) ? (procedureFilterEl.value || "__ALL__") : selectedSpecialty;
+
+      if (!selectedHospitals || !selectedHospitals.length) {
+        const d = document.createElement("div");
+        d.className = "smallmuted";
+        d.textContent = "Selecione ao menos um estabelecimento para ver os gráficos.";
+        columnsChartsEl.appendChild(d);
+        return;
+      }
+
+      for (const hospital of selectedHospitals) {
+        const wrapper = document.createElement("div");
+        wrapper.style.border = "1px solid rgba(19, 81, 180, 0.48)";
+        wrapper.style.background = "linear-gradient(180deg, rgba(19,81,180,0.05), rgba(19,81,180,0.015))";
+        wrapper.style.borderRadius = "14px";
+        wrapper.style.padding = "12px 12px";
+
+        const header = document.createElement("div");
+        header.className = "smallmuted";
+        const filterLabel = selProc === "__ALL__" ? "Todos os grupos" : getProcedureLabel(selProc);
+        header.innerHTML = `<b>${hospital}</b> <span style="opacity:0.85;">/ ${filterLabel}</span>`;
+        wrapper.appendChild(header);
+
+        const byCode = (DASH_STATE.countsByHospitalAndCode || {})[hospital] || {};
+        const procedures = [];
+        for (const esp of ALL_SPECIALTIES_ORDERED) {
+          if (selProc !== "__ALL__" && esp !== selProc) continue;
+          let value = 0;
+          for (const item of ALL_CODES_ORDERED) {
+            if (item.esp !== esp) continue;
+            value += (byCode[item.code10] || 0);
+          }
+          if (!value) continue;
+          procedures.push({ code10: esp, esp, value });
+        }
+
+        if (!procedures.length) {
+          const empty = document.createElement("div");
+          empty.className = "smallmuted";
+          empty.style.marginTop = "10px";
+          empty.textContent = "Nenhum procedimento da lista foi encontrado para este filtro.";
+          wrapper.appendChild(empty);
+          columnsChartsEl.appendChild(wrapper);
+          continue;
+        }
+
+        // Ordena por quantidade (desc) para facilitar leitura.
+        procedures.sort((a, b) => b.value - a.value);
+
+        const canvasWrap = document.createElement("div");
+        canvasWrap.style.overflowX = "auto";
+        canvasWrap.style.marginTop = "10px";
+
+        const canvas = document.createElement("canvas");
+        const canvasWidth = Math.max(760, procedures.length * 42 + 160);
+        canvas.width = canvasWidth;
+        canvas.height = 260;
+        canvas.style.display = "block";
+        canvas.style.borderRadius = "12px";
+        canvas.style.background = "rgba(19,81,180,0.08)";
+        canvasWrap.appendChild(canvas);
+        wrapper.appendChild(canvasWrap);
+
+        drawProcedureBarsChart(canvas, procedures);
+        columnsChartsEl.appendChild(wrapper);
+      }
+    }
+
+    function drawProcedureBarsChart(canvasEl, procedures) {
+      const ctx = canvasEl.getContext("2d");
+      const w = canvasEl.width;
+      const h = canvasEl.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const left = 70;
+      const right = 18;
+      const top = 20;
+      const bottom = 110;
+
+      const plotW = Math.max(1, w - left - right);
+      const plotH = Math.max(1, h - top - bottom);
+
+      const max = Math.max(...procedures.map((p) => p.value), 0);
+      if (!max) return;
+
+      const n = Math.max(1, procedures.length);
+      const barSlot = plotW / n;
+      // Evita barras enormes quando há poucos procedimentos (ex.: 1 OCI apenas) deixando uma largura máxima bem menor.
+      const barW = Math.min(22, Math.max(8, barSlot * 0.55));
+
+      // Linha base (visivel no tema escuro)
+      ctx.strokeStyle = "rgba(19,81,180,0.32)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(left, top + plotH);
+      ctx.lineTo(left + plotW, top + plotH);
+      ctx.stroke();
+
+      for (let i = 0; i < procedures.length; i++) {
+        const p = procedures[i];
+        const value = p.value;
+        const barH = (value / max) * plotH;
+
+        const x = left + i * barSlot + (barSlot - barW) / 2;
+        const y = top + (plotH - barH);
+
+        ctx.fillStyle = procedureColorByIndex(i);
+        ctx.fillRect(x, y, barW, barH);
+
+        ctx.strokeStyle = "rgba(0,0,0,0.22)";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x, y, barW, barH);
+
+        // Valor acima da barra
+        ctx.fillStyle = "rgba(31,41,55,0.92)";
+        ctx.font = "12px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(String(value), x + barW / 2, y - 6);
+
+        // Label do procedimento
+        ctx.save();
+        ctx.translate(x + barW / 2, top + plotH + 65);
+        ctx.rotate(-Math.PI / 4);
+        // Nome do grupo em branco para contraste no fundo escuro
+        ctx.fillStyle = "rgba(31,41,55,0.92)";
+        ctx.textAlign = "center";
+        ctx.font = "11px sans-serif";
+        ctx.fillText(String(SPECIALTY_DISPLAY_NAME[p.esp] || p.esp || ""), 0, 0);
+        ctx.restore();
+      }
+    }
+
+    function getProcedurePieDataset(totalsByCode10) {
+      const list = [];
+      for (const esp of ALL_SPECIALTIES_ORDERED) {
+        const value = totalsByCode10[esp] || 0;
+        if (!value) continue;
+        list.push({ esp, value });
+      }
+      list.sort((a, b) => b.value - a.value);
+      if (!list.length) return [];
+
+      const dataset = [];
+      for (let i = 0; i < list.length; i++) {
+        const x = list[i];
+        dataset.push({
+          key: x.esp,
+          legendLabel: `${SPECIALTY_DISPLAY_NAME[x.esp] || x.esp}`,
+          value: x.value,
+          color: PIE_COLORS[x.esp] || procedureColorByIndex(i),
+        });
+      }
+      return dataset;
+    }
+
+    // Pizza de procedimentos (Top N)
+    function drawPieChart(totalsByCode10) {
+      const ctx = pieCanvasEl.getContext("2d");
+      const w = pieCanvasEl.width;
+      const h = pieCanvasEl.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const r = Math.min(w, h) / 2 - 8;
+      ctx.clearRect(0, 0, w, h);
+
+      const dataset = getProcedurePieDataset(totalsByCode10);
+      const total = dataset.reduce((acc, x) => acc + x.value, 0);
+      if (!total) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(19,81,180,0.08)";
+        ctx.fill();
+        ctx.fillStyle = "#6b7280";
+        ctx.font = "12px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Sem dados", cx, cy + 4);
+        return;
+      }
+
+      let start = -Math.PI / 2;
+      for (const slice of dataset) {
+        const angle = (slice.value / total) * Math.PI * 2;
+        // Traço separando as fatias (melhora visibilidade em valores pequenos).
+        const strokeAlpha = 0.55;
+        ctx.lineJoin = "round";
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, r, start, start + angle);
+        ctx.closePath();
+        ctx.fillStyle = slice.color;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(0,0,0,${strokeAlpha})`;
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        start += angle;
+      }
+    }
+
+    function renderPieLegend(totalsByCode10) {
+      pieLegendEl.innerHTML = "";
+      const dataset = getProcedurePieDataset(totalsByCode10);
+      const total = dataset.reduce((acc, x) => acc + x.value, 0);
+      if (!total) {
+        const row = document.createElement("div");
+        row.className = "legendRow";
+        row.innerHTML = `
+          <span class="legendColor" style="background:#a9b4d6"></span>
+          <span>Sem dados</span>
+          <span style="text-align:right; font-weight:800;">0</span>
+        `;
+        pieLegendEl.appendChild(row);
+        return;
+      }
+
+      for (const slice of dataset) {
+        const pct = ((slice.value / total) * 100).toFixed(1);
+        const row = document.createElement("div");
+        row.className = "legendRow";
+        row.innerHTML = `
+          <span class="legendColor" style="background:${slice.color}"></span>
+          <span>${slice.legendLabel} (${pct}%)</span>
+          <span style="text-align:right; font-weight:800;">${slice.value}</span>
+        `;
+        pieLegendEl.appendChild(row);
+      }
+    }
+
+    function drawColumnsChart(bySpecialty) {
+      const ctx = columnsCanvasEl.getContext("2d");
+      const w = columnsCanvasEl.width;
+      const h = columnsCanvasEl.height;
+
+      const left = 48;
+      const right = 16;
+      const top = 18;
+      const bottom = 56;
+
+      const plotW = Math.max(1, w - left - right);
+      const plotH = Math.max(1, h - top - bottom);
+      ctx.clearRect(0, 0, w, h);
+
+      const max = Math.max(...ALL_SPECIALTIES_ORDERED.map((esp) => (bySpecialty[esp] || 0)), 0);
+      if (!max) {
+        ctx.fillStyle = "rgba(255,255,255,0.12)";
+        ctx.fillRect(left, top, plotW, plotH);
+        ctx.fillStyle = "#a9b4d6";
+        ctx.font = "12px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Sem dados", w / 2, h / 2);
+        return;
+      }
+
+      const n = ALL_SPECIALTIES_ORDERED.length;
+      const barSlot = plotW / n;
+      const barW = Math.max(10, barSlot * 0.65);
+
+      // Barras
+      for (let i = 0; i < n; i++) {
+        const esp = ALL_SPECIALTIES_ORDERED[i];
+        const value = bySpecialty[esp] || 0;
+        const barH = (value / max) * plotH;
+        const x = left + i * barSlot + (barSlot - barW) / 2;
+        const y = top + (plotH - barH);
+
+        ctx.fillStyle = PIE_COLORS[esp] || "#58a6ff";
+        ctx.fillRect(x, y, barW, barH);
+
+        // Divisor superior e rótulo do valor
+        ctx.fillStyle = "rgba(0,0,0,0.25)";
+        ctx.fillRect(x, y, barW, 3);
+        ctx.fillStyle = "#e9eefc";
+        ctx.font = "12px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(String(value), x + barW / 2, y - 6);
+
+        // Rótulo da especialidade
+        ctx.save();
+        ctx.translate(x + barW / 2, top + plotH + 24);
+        ctx.rotate(-Math.PI / 4);
+        ctx.fillStyle = "#a9b4d6";
+        ctx.font = "12px sans-serif";
+        ctx.fillText(esp, 0, 0);
+        ctx.restore();
+      }
+    }
+
+    function renderColumnsLegend(bySpecialty) {
+      columnsLegendEl.innerHTML = "";
+      const total = ALL_SPECIALTIES_ORDERED.reduce((acc, esp) => acc + (bySpecialty[esp] || 0), 0);
+      if (!total) {
+        const row = document.createElement("div");
+        row.className = "legendRow";
+        row.innerHTML = `
+          <span class="legendColor" style="background:#a9b4d6"></span>
+          <span>Sem dados</span>
+          <span style="text-align:right; font-weight:800;">0</span>
+        `;
+        columnsLegendEl.appendChild(row);
+        return;
+      }
+
+      for (const esp of ALL_SPECIALTIES_ORDERED) {
+        const value = bySpecialty[esp] || 0;
+        const pct = ((value / total) * 100).toFixed(1);
+        const row = document.createElement("div");
+        row.className = "legendRow";
+        row.innerHTML = `
+          <span class="legendColor" style="background:${PIE_COLORS[esp] || "#58a6ff"}"></span>
+          <span>${esp} (${pct}%)</span>
+          <span style="text-align:right; font-weight:800;">${value}</span>
+        `;
+        columnsLegendEl.appendChild(row);
+      }
+    }
+
+    function renderTable(countsByCode10) {
+      rowsEl.innerHTML = "";
+      for (const esp of ALL_SPECIALTIES_ORDERED) {
+        const total = countsByCode10[esp] || 0;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><b>${SPECIALTY_DISPLAY_NAME[esp] || esp}</b></td>
+          <td style="text-align:right; font-weight:800;">${total}</td>
+        `;
+        rowsEl.appendChild(tr);
+      }
+    }
+
+    btnProcess.addEventListener("click", async () => {
+      const files = fileInput.files ? Array.from(fileInput.files) : [];
+      if (!files.length) {
+        setStatus("Selecione um ou mais arquivos .jan/.txt primeiro.");
+        return;
+      }
+      btnProcess.setAttribute("aria-busy", "true");
+      btnProcess.textContent = "Processando...";
+      btnProcess.style.pointerEvents = "none";
+      try {
+        await processFiles(files);
+      } catch (err) {
+        console.error(err);
+        setStatus("Erro ao processar os arquivos.");
+      } finally {
+        btnProcess.textContent = "Processar arquivos";
+        btnProcess.style.pointerEvents = "";
+        btnProcess.removeAttribute("aria-busy");
+      }
+    });
+
+    hospitalFilterEl.addEventListener("change", () => {
+      if ((DASH_STATE.processedFiles || 0) > 0) {
+        setFiltersDirty(true);
+        setStatus("Filtros alterados. Clique em 'Aplicar filtros'.");
+      }
+    });
+
+    procedureFilterEl.addEventListener("change", () => {
+      if ((DASH_STATE.processedFiles || 0) > 0) {
+        setFiltersDirty(true);
+        setStatus("Filtros alterados. Clique em 'Aplicar filtros'.");
+      }
+    });
+
+    btnApplyFiltersEl.addEventListener("click", () => {
+      if (!HAS_UNAPPLIED_FILTERS) return;
+      renderAll();
+      setFiltersDirty(false);
+      setStatus("Filtros aplicados.");
+    });
+
+    btnExportHospEl.addEventListener("click", () => {
+      const selectedHospitals = getFilteredHospitals();
+      const selectedSpecialty = procedureFilterEl.value || "__ALL__";
+      const rows = selectedHospitals
+        .slice()
+        .sort((a, b) => (DASH_STATE.reportCountByHospital[b] || 0) - (DASH_STATE.reportCountByHospital[a] || 0))
+        .map((hospital) => {
+          const byCode = (DASH_STATE.countsByHospitalAndCode || {})[hospital] || {};
+          let mappedCount = 0;
+          if (selectedSpecialty === "__ALL__") {
+            mappedCount = Object.values(byCode).reduce((acc, v) => acc + (v || 0), 0);
+          } else {
+            for (const item of ALL_CODES_ORDERED) {
+              if (item.esp !== selectedSpecialty) continue;
+              mappedCount += (byCode[item.code10] || 0);
+            }
+          }
+          return [
+            hospital,
+            DASH_STATE.reportCountByHospital[hospital] || 0,
+            mappedCount,
+          ];
+        });
+      if (!rows.length) {
+        setStatus("Nada para exportar no resumo.");
+        return;
+      }
+      downloadCsv("resumo_estabelecimentos.csv", ["estabelecimento", "relatorios", "procedimentos_mapeados"], rows);
+      setStatus("CSV de resumo exportado.");
+    });
+
+    btnExportProcEl.addEventListener("click", () => {
+      const selectedHospitals = getFilteredHospitals();
+      const selectedSpecialty = procedureFilterEl.value || "__ALL__";
+      const rows = [];
+      for (const hospital of selectedHospitals) {
+        const byCode = (DASH_STATE.countsByHospitalAndCode || {})[hospital] || {};
+        for (const esp of ALL_SPECIALTIES_ORDERED) {
+          if (selectedSpecialty !== "__ALL__" && esp !== selectedSpecialty) continue;
+          let total = 0;
+          for (const item of ALL_CODES_ORDERED) {
+            if (item.esp !== esp) continue;
+            total += (byCode[item.code10] || 0);
+          }
+          if (!total) continue;
+          rows.push([hospital, SPECIALTY_DISPLAY_NAME[esp] || esp, total]);
+        }
+      }
+      if (!rows.length) {
+        setStatus("Nada para exportar em procedimentos.");
+        return;
+      }
+      downloadCsv("grupos_estabelecimentos.csv", ["estabelecimento", "grupo", "total"], rows);
+      setStatus("CSV de grupos exportado.");
+    });
+
+    // Se o usuário selecionar o arquivo, já atualiza automaticamente (opcional)
+    fileInput.addEventListener("change", () => {
+      const total = fileInput.files ? fileInput.files.length : 0;
+      if (total === 0) {
+        setStatus("Aguardando arquivo...");
+        return;
+      }
+      setStatus(`${total} arquivo(s) selecionado(s). Clique em 'Processar arquivos'.`);
+    });
+
+    btnLoginEl.addEventListener("click", async () => {
+      try {
+        await doSignIn();
+      } catch (err) {
+        setAuthMsg("Falha inesperada ao entrar.");
+      }
+    });
+
+    btnSignUpEl.addEventListener("click", async () => {
+      try {
+        await doSignUp();
+      } catch (err) {
+        setAuthMsg("Falha inesperada ao cadastrar.");
+      }
+    });
+
+    btnLogoutEl.addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+      setStatus("Sessao encerrada.");
+    });
+
+    supabaseClient.auth.onAuthStateChange((_event, session) => {
+      renderAuthState(session?.user || null);
+    });
+
+    // Estado inicial
+    procedureFilterEl.innerHTML = `<option value="__ALL__">Todos os grupos</option>`;
+    for (const esp of ALL_SPECIALTIES_ORDERED) {
+      const opt = document.createElement("option");
+      opt.value = esp;
+      opt.textContent = SPECIALTY_DISPLAY_NAME[esp] || esp;
+      procedureFilterEl.appendChild(opt);
+    }
+    procedureFilterEl.value = "__ALL__";
+    renderEmpty();
+    setFiltersDirty(false);
+    setStatus("Aguardando arquivo...");
+    setAppEnabled(false);
+    supabaseClient.auth.getSession().then(({ data }) => {
+      renderAuthState(data.session?.user || null);
+    }).catch(() => {
+      renderAuthState(null);
+      setAuthMsg("Nao foi possivel validar sessao.");
+    });
+  </script>
+</body>
+</html>
+
